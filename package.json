@@ -4,7 +4,8 @@
   "description": "Webpage for Matthew Collard",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No tests set\"",
+	"build": "echo \"No needed building\""
   },
   "repository": {
     "type": "git",
