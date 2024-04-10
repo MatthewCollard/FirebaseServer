@@ -1,0 +1,19 @@
+{
+  "name": "firebaseserver",
+  "version": "1.0.0",
+  "description": "Webpage for Matthew Collard",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatthewCollard/FirebaseServer.git"
+  },
+  "author": "Matthew Collard",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MatthewCollard/FirebaseServer/issues"
+  },
+  "homepage": "https://github.com/MatthewCollard/FirebaseServer#readme"
+}
