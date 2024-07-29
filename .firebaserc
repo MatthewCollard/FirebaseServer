@@ -1,5 +1,19 @@
 {
   "projects": {
     "default": "matthew-collard"
-  }
+  },
+  "targets": {
+    "matthew-collard": {
+      "hosting": {
+        "default": [
+          "matthew-collard.web.app"
+        ],
+        "Unity": [
+          "matthew-collard-unity.web.app"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }

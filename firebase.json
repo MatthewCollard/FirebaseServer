@@ -1,16 +1,34 @@
 {
-  "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }
+  "hosting": [
+	{
+		"site": "matthew-collard",
+		"public": "public",
+		"ignore": [
+		"firebase.json",
+		"**/.*",
+		"**/node_modules/**"
+		],
+		"rewrites": [
+		{
+			"source": "**",
+			"destination": "/index.html"
+		}
+		]
+	},
+	{
+		"site": "matthew-collard-unity",
+		"public": "public/Unity",
+		"ignore": [
+		"firebase.json",
+		"**/.*",
+		"**/node_modules/**"
+		],
+		"rewrites": [
+		{
+			"source": "**",
+			"destination": "/index.html"
+		}
+		]
+	}
+  ]
 }
