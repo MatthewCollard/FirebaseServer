@@ -210,6 +210,23 @@ ax1.set_title('tripcolor of Delaunay triangulation, flat shading')
 
 display(fig1, target="mpl")
 
+#w = MainWindow()
+#display(w,target="mainapp")
+#w.show()
+stylesheet = """
+    MainWindow {
+        background-image: url("AnimatedOcean.jpg"); 
+        background-repeat: no-repeat; 
+        background-position: center;
+    }
+"""
+
+custom_font = QFont()
+custom_font.setWeight(26);
+#QApplication.setFont(custom_font, "QLabel")
+app = QApplication(sys.argv)
+app.setFont(custom_font)
+app.setStyleSheet(stylesheet)
 w = MainWindow()
-display(w,target="mainapp")
-w.show()
+display(w.show(),target="mpl")
+display(app.exec())
