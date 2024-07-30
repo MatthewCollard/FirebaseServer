@@ -1,3 +1,3 @@
 {
-    "packages": ["PyQt6","tkinter","keras","tensorflow","pathlib","PIL","sys","random","glob","os"]
+    "packages": ["PyQt6","tkinter","keras","tensorflow","pathlib","PIL","sys","random","glob","os","matplotlib"]
 }
