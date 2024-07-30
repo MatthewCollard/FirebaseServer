@@ -26,6 +26,8 @@ import random
 import glob
 import os
 
+from pyscript import display
+
 #include <QRect>
 
 
@@ -316,21 +318,21 @@ class WidgetButton(QWidget):
 
 
 
-def Start():
-    stylesheet = """
-        MainWindow {
-            background-image: url("AnimatedOcean.jpg"); 
-            background-repeat: no-repeat; 
-            background-position: center;
-        }
-    """
+stylesheet = """
+    MainWindow {
+        background-image: url("AnimatedOcean.jpg"); 
+        background-repeat: no-repeat; 
+        background-position: center;
+    }
+"""
 
-    custom_font = QFont()
-    custom_font.setWeight(26);
-    #QApplication.setFont(custom_font, "QLabel")
-    app = QApplication(sys.argv)
-    app.setFont(custom_font)
-    app.setStyleSheet(stylesheet)
-    w = MainWindow()
-    w.show()
-    app.exec()
+custom_font = QFont()
+custom_font.setWeight(26);
+#QApplication.setFont(custom_font, "QLabel")
+app = QApplication(sys.argv)
+app.setFont(custom_font)
+app.setStyleSheet(stylesheet)
+w = MainWindow()
+display(w,target="mpl")
+w.show()
+app.exec()
