@@ -29,7 +29,7 @@
 			"destination": "/index.html"
 		}
 		]
-	}
+	},
 	{
 		"site": "matthew-collard-gdsc",
 		"public": "public/GDSC",
