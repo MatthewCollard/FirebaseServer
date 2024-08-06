@@ -5,51 +5,22 @@ import glob
 from bokeh.models import ColumnDataSource
 from pyscript import display
 from pyscript import document
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
 import js
 
-class ApplicationLayer():
-    def importImages(self):
-            self.image_list = []
-            self.imageNameList=[]
-            print(folderPath)
-            for filename in glob.glob(folderPath+'/*.jpg'): #assuming gif        
-                filename=str(pathlib.PureWindowsPath(filename).as_posix())
-                picture = Image.open(filename)
-                self.image_list.append(picture)
-                self.imageNameList.append(filename)
-                picture.thumbnail((416, 416), Image.LANCZOS)
-                icon = QIcon(QPixmap(filename))#QIcon(QPixmap.fromImage(ImageQt.ImageQt(picture)))
-                item = QListWidgetItem(os.path.basename(filename)[:20] + "...", self.imageListView)
-                item.setStatusTip(filename)
-                item.setIcon(icon)
-
-    def classify(self):
-            print("Classify")
-            for i in self.imageNameList:
-                img = image.load_img(i, target_size=(416, 416)) 
-                img_array = image.img_to_array(img)
-                img_array = np.expand_dims(img_array, axis=0)
+def classify(target):
+    print("Classify")
+    img = image.load_img(target, target_size=(416, 416)) 
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
                 
-            #img_array /= 255.0  # Normalize the image pixel values
-            #icon = QIcon(QPixmap(i))#QIcon(QPixmap.fromImage(ImageQt.ImageQt(picture)))
-            #widgetFont = QFont()
-            #widgetFont.setWeight(40)
-            #widgetFont.setPointSize(24)
-                predictions=self.loaded_model.predict(img_array)
-                print("Source Image: "+i)
-                print("Predicted Probabilites:")
-                print(predictions)
-                predicted_class_index = np.argmax(predictions)
-                if(predicted_class_index==0):
-                    print("Predicted Class: Clean")
-                    item = QListWidgetItem("Predicted Class: Clean \n"+i, self.resultsListView)
-                    item.setFont(widgetFont)
-                else:
-                    print("Predicted Class: Dirty")
-                    item = QListWidgetItem("Predicted Class: Dirty \n"+i, self.resultsListView)
-                    item.setFont(widgetFont)
-                item.setStatusTip(i)
-                item.setIcon(icon)
+    predictions=loaded_model.predict(img_array)
+    predicted_class_index = np.argmax(predictions)
+    if(predicted_class_index==0):
+        return("Predicted Class: Clean")
+    else:
+        return("Predicted Class: Dirty")
 
 resized_images=[]
 
@@ -68,7 +39,7 @@ def resize_image(img, output_div):
             
             # Create label element
     label = js.document.createElement("p")
-    label.textContent = "Dirty"
+    label.textContent = classify(resized_img)
             # Display the resized image in the output div
     output_img = js.document.createElement("img")
     output_img.src = resized_img
@@ -81,6 +52,7 @@ def resize_image(img, output_div):
 
 
 def importing(event):
+    loaded_model = load_model("./marinemodel.h5")
     input_text = document.querySelector("#ctrl")
     output_div = document.querySelector("#out")
     files = input_text.files
@@ -111,7 +83,7 @@ def importing(event):
 
 
 
-#self.loaded_model = load_model("./marinemodel.h5")
+
 
 #df = pd.DataFrame(np.random.randn(10, 4), columns=list('ABCD')).cumsum()
 #tabulator = pn.widgets.Tabulator(df, height=450, width=400).servable(target='table')
