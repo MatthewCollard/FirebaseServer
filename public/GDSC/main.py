@@ -49,6 +49,7 @@ def resize_image(img, output_div):
     container.appendChild(label)
     
     output_div.appendChild(container)
+    js.uploadImage(resized_img,file_name)
 
 
 def importing(event):

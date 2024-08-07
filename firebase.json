@@ -1,49 +1,65 @@
 {
   "hosting": [
-	{
-		"site": "matthew-collard",
-		"public": "public",
-		"ignore": [
-		"firebase.json",
-		"**/.*",
-		"**/node_modules/**"
-		],
-		"rewrites": [
-		{
-			"source": "**",
-			"destination": "/index.html"
-		}
-		]
-	},
-	{
-		"site": "matthew-collard-unity",
-		"public": "public/Unity",
-		"ignore": [
-		"firebase.json",
-		"**/.*",
-		"**/node_modules/**"
-		],
-		"rewrites": [
-		{
-			"source": "**",
-			"destination": "/index.html"
-		}
-		]
-	},
-	{
-		"site": "matthew-collard-gdsc",
-		"public": "public/GDSC",
-		"ignore": [
-		"firebase.json",
-		"**/.*",
-		"**/node_modules/**"
-		],
-		"rewrites": [
-		{
-			"source": "**",
-			"destination": "/index.html"
-		}
-		]
-	}
+    {
+      "site": "matthew-collard",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "site": "matthew-collard-unity",
+      "public": "public/Unity",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "site": "matthew-collard-gdsc",
+      "public": "public/GDSC",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
   ]
 }

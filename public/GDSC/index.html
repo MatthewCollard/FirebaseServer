@@ -12,7 +12,8 @@
 
         <!-- This script tag bootstraps PyScript -->
         <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-
+		<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-storage.js"></script>
         <!-- for splashscreen -->
         <style>
              #out {
@@ -87,6 +88,39 @@
         </section>
         <button py-click="importing">Import</button>
         <div id="out"></div>
+		
+		
+		<script type="module">
+        // Your Firebase configuration
+        const firebaseConfig = {
+			apiKey: "AIzaSyA74K-gs9HxyKZK_V7C_U2WTf-O4arVzDg",
+			authDomain: "matthew-collard.firebaseapp.com",
+			projectId: "matthew-collard",
+			storageBucket: "matthew-collard.appspot.com",
+			messagingSenderId: "546899924226",
+			appId: "1:546899924226:web:d1ba8f244cd87277015e1b"
+		};
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        // Function to upload image to Firebase
+        async function uploadImage(imageData, fileName) {
+            const storageRef = storage.ref();
+            const imageRef = storageRef.child(`images/${fileName}`);
+            try {
+                const snapshot = await imageRef.putString(imageData, 'data_url');
+                const url = await snapshot.ref.getDownloadURL();
+                console.log('Uploaded a data_url string!', url);
+                return url;
+            } catch (error) {
+                console.error('Upload failed:', error);
+            }
+        }
+
+        export { uploadImage };
+		</script>
 
     </body>
 </html>
