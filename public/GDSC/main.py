@@ -6,6 +6,7 @@ from bokeh.models import ColumnDataSource
 from pyscript import display
 from pyscript import document
 import js
+from js import uploadImage
 
 def classify(target):
     print("Classify")
