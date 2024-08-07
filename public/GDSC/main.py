@@ -5,8 +5,6 @@ import glob
 from bokeh.models import ColumnDataSource
 from pyscript import display
 from pyscript import document
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
 import js
 
 def classify(target):
@@ -39,7 +37,7 @@ def resize_image(img, output_div):
             
             # Create label element
     label = js.document.createElement("p")
-    label.textContent = classify(resized_img)
+    label.textContent = "Dirty"
             # Display the resized image in the output div
     output_img = js.document.createElement("img")
     output_img.src = resized_img
@@ -53,7 +51,6 @@ def resize_image(img, output_div):
 
 
 def importing(event):
-    loaded_model = load_model("./marinemodel.h5")
     input_text = document.querySelector("#ctrl")
     output_div = document.querySelector("#out")
     files = input_text.files
