@@ -102,7 +102,7 @@ def importing(event):
         #output_div.appendChild(img)
         
     for i in range(files.length):
-        FileTransfer.setFile(files.item(i))
+        FileTransfer.addFile(files.item(i))
         reader = js.FileReader.new()
         reader.onload = onload
         reader.readAsDataURL(files.item(i))
