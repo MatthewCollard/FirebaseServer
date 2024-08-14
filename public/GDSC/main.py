@@ -2,11 +2,30 @@ import numpy as np
 import panel as pn
 import pandas as pd
 import glob
+import requests
+import base64
 from bokeh.models import ColumnDataSource
 from pyscript import display
 from pyscript import document
 import js
-from pyscript.js_modules import code
+#from pyscript.js_modules import code
+FIREBASE_API_KEY = "AIzaSyA74K-gs9HxyKZK_V7C_U2WTf-O4arVzDg"
+FIREBASE_STORAGE_BUCKET ="matthew-collard.appspot.com"
+FIREBASE_UPLOAD_URL = f"https://firebasestorage.googleapis.com/v0/b/{FIREBASE_STORAGE_BUCKET}/o"
+
+
+#matthew-collard.appspot.com
+def upload_image_to_firebase(image_data, file_name):
+    headers = {
+        "Authorization": f"Bearer {FIREBASE_API_KEY}",
+        "Content-Type": "image/jpeg",
+    }
+    upload_url = f"{FIREBASE_UPLOAD_URL}/{file_name}?uploadType=media"
+    response = requests.post(upload_url, headers=headers, data=image_data)
+    if response.status_code == 200:
+        print(f"Uploaded {file_name} successfully!")
+    else:
+        print(f"Failed to upload {file_name}. Status code: {response.status_code}, Error: {response.text}")
 
 def classify(target):
     print("Classify")
@@ -31,6 +50,8 @@ def resize_image(img, output_div):
     ctx.drawImage(img, 0, 0, 416, 416)
             
     resized_img = canvas.toDataURL("image/jpeg")
+    image_data=base64.b64decode(resized_img)
+
     resized_images.append(resized_img)
 
     container = js.document.createElement("div")
@@ -48,7 +69,8 @@ def resize_image(img, output_div):
     container.appendChild(label)
     
     output_div.appendChild(container)
-    code.uploadImage(resized_img,file_name)
+    upload_image_to_firebase(image_data,file_name)
+    #code.uploadImage(resized_img,file_name)
 
 
 def importing(event):
@@ -62,7 +84,6 @@ def importing(event):
     # Create an image element and set its source to the file data
         img = document.createElement("img")
         img.src = event.target.result
-        print("got here")
         img.alt = event.target.result
         img.style.margin = "10px"
 

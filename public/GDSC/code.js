@@ -1,6 +1,6 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
+//import firebase from './firebase/compat/app';
+//import './firebase/compat/auth';
+//import './firebase/compat/firestore';
 
 const firebaseConfig = {
     apiKey: "AIzaSyA74K-gs9HxyKZK_V7C_U2WTf-O4arVzDg",
@@ -12,8 +12,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
+//const app = firebase.initializeApp(firebaseConfig);
+//const storage = firebase.storage();
 
 // Function to upload image to Firebase
 export async function uploadImage(imageData, fileName) {
