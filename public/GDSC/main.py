@@ -1,4 +1,5 @@
 import numpy as np
+from asyncio.windows_events import NULL
 import panel as pn
 import pandas as pd
 import glob
@@ -12,6 +13,17 @@ import js
 FIREBASE_API_KEY = "AIzaSyA74K-gs9HxyKZK_V7C_U2WTf-O4arVzDg"
 FIREBASE_STORAGE_BUCKET ="matthew-collard.appspot.com"
 FIREBASE_UPLOAD_URL = f"https://firebasestorage.googleapis.com/v0/b/{FIREBASE_STORAGE_BUCKET}/o"
+
+class FileTransfer:
+    file=NULL
+
+    @staticmethod
+    def setFile(file):
+        FileTransfer.file=file
+
+    @staticmethod
+    def getFile():
+        return FileTransfer.file
 
 
 #matthew-collard.appspot.com
@@ -78,7 +90,6 @@ def importing(event):
     output_div = document.querySelector("#out")
     files = input_text.files
     #output_div.innerText = file_names
-    global file=files.item(0)
     
     def onload(event):
     # Create an image element and set its source to the file data
@@ -87,12 +98,12 @@ def importing(event):
         img.alt = event.target.result
         img.style.margin = "10px"
 
-        img.onload = lambda e: resize_image(img, file.name, output_div)
+        img.onload = lambda e: resize_image(img, FileTransfer.getFile().name, output_div)
         # Append the image to the output div
         #output_div.appendChild(img)
         
     for i in range(files.length):
-        file=files.item(i)
+        FileTransfer.setFile(files.item(i))
         reader = js.FileReader.new()
         reader.onload = onload
         reader.readAsDataURL(files.item(i))
