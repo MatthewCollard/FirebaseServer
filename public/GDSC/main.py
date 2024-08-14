@@ -14,15 +14,15 @@ FIREBASE_STORAGE_BUCKET ="matthew-collard.appspot.com"
 FIREBASE_UPLOAD_URL = f"https://firebasestorage.googleapis.com/v0/b/{FIREBASE_STORAGE_BUCKET}/o"
 
 class FileTransfer:
-    file=""
+    file=[]
 
     @staticmethod
-    def setFile(file):
-        FileTransfer.file=file
+    def addFile(file):
+        FileTransfer.file.append(file)
 
     @staticmethod
     def getFile():
-        return FileTransfer.file
+        return FileTransfer.file.pop(0)
 
 
 #matthew-collard.appspot.com
