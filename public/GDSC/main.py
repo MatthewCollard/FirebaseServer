@@ -6,7 +6,7 @@ from bokeh.models import ColumnDataSource
 from pyscript import display
 from pyscript import document
 import js
-from js import uploadImage
+from pyscript.js_modules import code
 
 def classify(target):
     print("Classify")
@@ -48,7 +48,7 @@ def resize_image(img, output_div):
     container.appendChild(label)
     
     output_div.appendChild(container)
-    js.uploadImage(resized_img,file_name)
+    code.uploadImage(resized_img,file_name)
 
 
 def importing(event):
