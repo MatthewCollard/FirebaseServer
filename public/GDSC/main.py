@@ -1,5 +1,4 @@
 import numpy as np
-from asyncio.windows_events import NULL
 import panel as pn
 import pandas as pd
 import glob
@@ -15,7 +14,7 @@ FIREBASE_STORAGE_BUCKET ="matthew-collard.appspot.com"
 FIREBASE_UPLOAD_URL = f"https://firebasestorage.googleapis.com/v0/b/{FIREBASE_STORAGE_BUCKET}/o"
 
 class FileTransfer:
-    file=NULL
+    file=""
 
     @staticmethod
     def setFile(file):
