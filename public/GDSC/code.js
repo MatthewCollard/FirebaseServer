@@ -1,3 +1,7 @@
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
+
 const firebaseConfig = {
     apiKey: "AIzaSyA74K-gs9HxyKZK_V7C_U2WTf-O4arVzDg",
     authDomain: "matthew-collard.firebaseapp.com",
