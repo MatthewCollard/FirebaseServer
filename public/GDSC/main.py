@@ -78,9 +78,9 @@ def importing(event):
     output_div = document.querySelector("#out")
     files = input_text.files
     #output_div.innerText = file_names
+    file=files.item(0)
     
-    
-    def onload(event,file=file):
+    def onload(event):
     # Create an image element and set its source to the file data
         img = document.createElement("img")
         img.src = event.target.result
@@ -95,7 +95,7 @@ def importing(event):
         file=files.item(i)
         reader = js.FileReader.new()
         reader.onload = onload
-        reader.readAsDataURL(file)
+        reader.readAsDataURL(files.item(i))
         
     
     
