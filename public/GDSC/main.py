@@ -42,7 +42,7 @@ def classify(target):
 
 resized_images=[]
 
-def resize_image(img, output_div):
+def resize_image(img, file_name, output_div):
     canvas = js.document.createElement("canvas")
     canvas.width = 416
     canvas.height = 416
@@ -80,14 +80,14 @@ def importing(event):
     #output_div.innerText = file_names
     
     
-    def onload(event):
+    def onload(event,file=file):
     # Create an image element and set its source to the file data
         img = document.createElement("img")
         img.src = event.target.result
         img.alt = event.target.result
         img.style.margin = "10px"
 
-        img.onload = lambda e: resize_image(img, output_div)
+        img.onload = lambda e: resize_image(img, file.name, output_div)
         # Append the image to the output div
         #output_div.appendChild(img)
         
