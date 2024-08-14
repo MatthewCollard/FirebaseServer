@@ -95,7 +95,7 @@ def importing(event):
         file=files.item(i)
         reader = js.FileReader.new()
         reader.onload = onload
-        reader.readAsDataURL(files.item(i))
+        reader.readAsDataURL(file)
         
     
     
