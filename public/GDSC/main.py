@@ -78,7 +78,7 @@ def importing(event):
     output_div = document.querySelector("#out")
     files = input_text.files
     #output_div.innerText = file_names
-    file=files.item(0)
+    global file=files.item(0)
     
     def onload(event):
     # Create an image element and set its source to the file data
