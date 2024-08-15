@@ -7,81 +7,63 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+// const tf = require("@tensorflow/tfjs-node");
+const tflite = require("@tensorflow/tfjs-tflite");
 
-const functions = require('firebase-functions');
-const path = require('path');
-const fs = require('fs');
+// Initialize Firebase Admin SDK
+admin.initializeApp();
 
-const tf = require('@tensorflow/tfjs-node');
-const tfCore = require('@tensorflow/tfjs');
-
-const app = express();
-
-
-let objectDetectionModel;
-async function loadModel(fileName) {
-    // Warm up the model
-    if (!objectDetectionModel) {
-      // Load the TensorFlow SavedModel through tfjs-node API. You can find more
-      // details in the API documentation:
-      // https://js.tensorflow.org/api_node/1.3.1/#node.loadSavedModel
-      objectDetectionModel = await tf.node.loadSavedModel(
-        './converted_model.tflite', ['serve'], 'serving_default');
-    }
-    
-   try {
-    const imageBuffer = fs.readFileSync(fileName);
-    const tfImage = tf.node.decodeImage(imageBuffer);
-    var resizedImage = tfCore.image.resizeBilinear(tfImage, [416, 416]);  
-   
-    const float32Cast = tf.cast(resizedImage, 'float32');
-    const t4d = tf.tensor4d(Array.from(float32Cast.dataSync()),[1,416,416,3])
-
-    var list = objectDetectionModel.predict(t4d).dataSync()
-    var predictedList = list.toString().split(",")
-    
-    const writeResult = await admin.firestore().doc('devices/result').set({foundedItem: predictedList});
-
-   } catch(err) {
-        console.log(err);
-   }
+// Load the TFLite model from Firebase Storage
+/**
+ * Load the TFLite model from Firebase Storage
+ */
+async function loadModel() {
+  const bucket = admin.storage().bucket();
+  const file = bucket.file("converted_model.tflite");
+  const [contents] = await file.download();
+  const tfliteModel = await tflite.loadTFLiteModel(contents.buffer);
+  return tfliteModel;
 }
 
+// Process pre-sized image data
+/**
+ * Process pre-sized image data
+ * @param {int} imageData - Image to be used in the model
+ * @return {Uint8} imageData - Converted image
+ */
+function preprocessImageData(imageData) {
+  // Assuming imageData is already in a Uint8Array format (e.g., RGB values).
+  // No tensor conversion needed, directly return it if this matches your model's input.
 
-exports.modelInference = functions.storage.object().onFinalize(async (object) => {
-    // [END generateThumbnailTrigger]
-      // [START eventAttributes]
-      const fileBucket = object.bucket; // The Storage bucket that contains the file.
-      const filePath = object.name; // File path in the bucket.
-      const contentType = object.contentType; // File content type.
-      const metageneration = object.metageneration; // Number of times metadata has been generated. New objects have a value of 1.
-      // [END eventAttributes]
-    
-      // [START stopConditions]
-      // Exit if this is triggered on a file that is not an image.
-      if (!contentType.startsWith('image/')) {
-        return console.log('This is not an image.');
-      }
-    
-      // Get the file name.
-      const fileName = path.basename(filePath);
-      
-      // Download file from bucket.
-      const bucket = admin.storage().bucket(fileBucket);
-      const tempFilePath = path.join(os.tmpdir(), fileName);
-      const metadata = {
-        contentType: contentType,
-      };
+  // For grayscale images, you might pass [batchSize, height, width, channels] format.
+  // Ensure the input shape matches what your TFLite model expects.
+  return new Uint8Array(imageData);
+}
+// Define the Firebase Function
+exports.predict = functions.https.onRequest(async (req, res) => {
+  try {
+    // Expecting image data as a Uint8Array in the request body
+    const imageData = req.body.imageData; // Ensure this is a Uint8Array
 
+    if (!imageData || !Array.isArray(imageData)) {
+      return res.status(400).send("Invalid image data");
+    }
 
-      await bucket.file(filePath).download({destination: tempFilePath});
-      console.log('Image downloaded locally to', tempFilePath);
-      console.log("IMAGE FILE PATH IS", tempFilePath)
-      loadModel(tempFilePath)
+    const model = await loadModel();
+    const processedImageData = preprocessImageData(imageData);
 
-      // Delete the local file to free up disk space.
-      return fs.unlinkSync(tempFilePath);
-      // [END thumbnailGeneration]
-    });
+    // Make the prediction
+    const prediction = model.predict(processedImageData);
+
+    // Convert the output to 0 or 1
+    const output = prediction.dataSync()[0];
+    const result = output > 0.5 ? 1 : 0;
+
+    res.json({result});
+  } catch (error) {
+    console.error("Error predicting:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
