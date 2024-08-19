@@ -85,6 +85,7 @@ def resize_image(img, file_name, output_div):
     
     image_data=ctx.getImageData(0,0,416,416)
     imgArray=np.array(image_data.data).reshape((416,416,4))[:,:,:3]
+    jsonSerializable = imgArray.tolist()
     #resized_images.append(resized_img)
 
     container = js.document.createElement("div")
@@ -92,7 +93,7 @@ def resize_image(img, file_name, output_div):
             
     # Create label element
     label = js.document.createElement("p")
-    result=call_predict_function(imgArray)
+    result=call_predict_function(jsonSerializable)
     if(result==0):
         label.textContent = "Dirty"
     elif(result==1):
