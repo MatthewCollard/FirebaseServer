@@ -85,7 +85,7 @@ def resize_image(img, file_name, output_div):
     
     image_data=ctx.getImageData(0,0,416,416)
     imgArray=np.array(image_data.data).reshape((416,416,4))[:,:,:3]
-    jsonSerializable = imgArray.tolist()
+    jsonSerializable = imgArray.flatten().tolist()
     #resized_images.append(resized_img)
 
     container = js.document.createElement("div")
