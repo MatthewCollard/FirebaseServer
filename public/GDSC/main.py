@@ -4,6 +4,7 @@ import pandas as pd
 import glob
 import requests
 import base64
+import json
 from bokeh.models import ColumnDataSource
 from pyscript import display
 from pyscript import document
@@ -12,6 +13,7 @@ import js
 FIREBASE_API_KEY = "AIzaSyA74K-gs9HxyKZK_V7C_U2WTf-O4arVzDg"
 FIREBASE_STORAGE_BUCKET ="matthew-collard.appspot.com"
 FIREBASE_UPLOAD_URL = f"https://firebasestorage.googleapis.com/v0/b/{FIREBASE_STORAGE_BUCKET}/o"
+FIREBASE_FUNCTION_URL = "https://us-central1-matthew-collard.cloudfunctions.net/predict"
 
 class FileTransfer:
     file=[]
@@ -37,6 +39,25 @@ def upload_image_to_firebase(image_data, file_name):
         print(f"Uploaded {file_name} successfully!")
     else:
         print(f"Failed to upload {file_name}. Status code: {response.status_code}, Error: {response.text}")
+
+def call_predict_function(image_data):
+    headers= {
+        "Authorization": f"Bearer {FIREBASE_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload= {
+        "imageData": image_data
+    }
+    
+    response = requests.post(FIREBASE_FUNCTION_URL,headers,data=json.dumps(payload))
+    if response.status_code == 200:
+        result = response.json().get("result")
+        print(f"Prediction: {result}")
+        return(result)
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        return(3)
+
 
 def classify(target):
     print("Classify")
@@ -70,8 +91,14 @@ def resize_image(img, file_name, output_div):
             
             # Create label element
     label = js.document.createElement("p")
-    label.textContent = "Dirty"
-            # Display the resized image in the output div
+    result=call_predict_function(image_data)
+    if(result==0):
+        label.textContent = "Dirty"
+    elif(result==1):
+        label.textContent = "Clean"
+    elif(result==3):
+        label.textContent = "error"
+    # Display the resized image in the output div
     output_img = js.document.createElement("img")
     output_img.src = resized_img
     output_img.alt = img.alt
@@ -80,7 +107,8 @@ def resize_image(img, file_name, output_div):
     container.appendChild(label)
     
     output_div.appendChild(container)
-    upload_image_to_firebase(image_data,file_name)
+    #upload_image_to_firebase(image_data,file_name)
+    
     #code.uploadImage(resized_img,file_name)
 
 
