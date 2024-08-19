@@ -11,7 +11,9 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 // const tf = require("@tensorflow/tfjs-node");
 const tflite = require("@tensorflow/tfjs-tflite");
-
+const {readFileSync} = require("fs");
+const {tmpdir} = require("os");
+const {join} = require("path");
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
@@ -41,6 +43,39 @@ function preprocessImageData(imageData) {
   // Ensure the input shape matches what your TFLite model expects.
   return new Uint8Array(imageData);
 }
+
+exports.predictOnImageUpload = functions.storage.object().onFinalize(async (object) => {
+  try {
+    const bucket = admin.storage().bucket(object.bucket);
+    const filePath = object.name;
+    const fileName = filePath.split("/").pop();
+
+    // Download the image to a temporary local file
+    const tempFilePath = join(tmpdir(), fileName);
+    await bucket.file(filePath).download({destination: tempFilePath});
+
+    // Load and preprocess the image
+    const imageBuffer = readFileSync(tempFilePath);
+    const imageArray = new Uint8Array(imageBuffer);
+    const processedImageData = preprocessImageData(imageArray);
+
+    // Load the TFLite model and make the prediction
+    const model = await loadModel();
+    const prediction = model.predict(processedImageData);
+    const output = prediction.dataSync()[0];
+    const result = output > 0.5 ? 1 : 0;
+
+    console.log(`Prediction result for ${fileName}:`, result);
+
+    // Store the result in Firestore (or Realtime Database)
+    await admin.firestore().collection("predictions").doc(fileName).set({
+      result: result,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error processing image upload:", error);
+  }
+});
 // Define the Firebase Function
 exports.predict = functions.https.onRequest(async (req, res) => {
   try {
