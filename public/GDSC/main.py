@@ -5,6 +5,9 @@ import glob
 import requests
 import base64
 import json
+import firebase_admin
+from firebase_admin import credentials, storage, firestore
+import time
 from bokeh.models import ColumnDataSource
 from pyscript import display
 from pyscript import document
@@ -14,6 +17,12 @@ FIREBASE_API_KEY = "AIzaSyA74K-gs9HxyKZK_V7C_U2WTf-O4arVzDg"
 FIREBASE_STORAGE_BUCKET ="matthew-collard.appspot.com"
 FIREBASE_UPLOAD_URL = f"https://firebasestorage.googleapis.com/v0/b/{FIREBASE_STORAGE_BUCKET}/o"
 FIREBASE_FUNCTION_URL = "https://us-central1-matthew-collard.cloudfunctions.net/predict"
+
+cred = credentials.Certificate("../../.firebase/matthew-collard-firebase-adminsdk-si3xs-6d913557e2.json")
+firebase_admin.initialize_app(cred,{
+"storageBucket",FIREBASE_STORAGE_BUCKET
+})
+db = firestore.client()
 
 class FileTransfer:
     file=[]
@@ -58,6 +67,20 @@ def call_predict_function(image_data):
         print(f"Error: {response.status_code} - {response.text}")
         return(3)
 
+def get_prediction_result(file_name, timeout=30):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        doc_ref = db.collection('predictions').document(file_name)
+        doc = doc_ref.get()
+        if doc.exists:
+            result = doc.to_dict().get('result')
+            print(f"Prediction result: {result}")
+            return result
+        else:
+            print("Waiting for prediction result...")
+            time.sleep(2)  # Polling interval
+    print("Timed out waiting for prediction result.")
+    return None
 
 def classify(target):
     print("Classify")
@@ -81,11 +104,15 @@ def resize_image(img, file_name, output_div):
     ctx = canvas.getContext("2d")
     ctx.drawImage(img, 0, 0, 416, 416)
             
-    resized_img = canvas.toDataURL("image/jpeg")
+    #resized_img = canvas.toDataURL("image/jpeg")
+    #image_data=ctx.getImageData(0,0,416,416)
+    #imgArray=np.array(image_data.data).reshape((416,416,4))[:,:,:3]
+    #jsonSerializable = imgArray.flatten().tolist()
     
-    image_data=ctx.getImageData(0,0,416,416)
-    imgArray=np.array(image_data.data).reshape((416,416,4))[:,:,:3]
-    jsonSerializable = imgArray.flatten().tolist()
+    resized_img=canvas.toDataURL("image/jpeg")
+    image_data=base64.b64decode(resized_img)
+    upload_image_to_firebase(image_data,file_name)
+    
     #resized_images.append(resized_img)
 
     container = js.document.createElement("div")
@@ -93,7 +120,10 @@ def resize_image(img, file_name, output_div):
             
     # Create label element
     label = js.document.createElement("p")
-    result=call_predict_function(jsonSerializable)
+    
+    result= get_prediciton_result(file_name)
+    
+    #result=call_predict_function(jsonSerializable)
     if(result==0):
         label.textContent = "Dirty"
     elif(result==1):
