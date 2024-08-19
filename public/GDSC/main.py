@@ -82,16 +82,17 @@ def resize_image(img, file_name, output_div):
     ctx.drawImage(img, 0, 0, 416, 416)
             
     resized_img = canvas.toDataURL("image/jpeg")
-    image_data=base64.b64decode(resized_img)
-
-    resized_images.append(resized_img)
+    
+    image_data=ctx.getImageData(0,0,416,416)
+    imgArray=np.array(image_data.data).reshape((416,416,4))[:,:,:3]
+    #resized_images.append(resized_img)
 
     container = js.document.createElement("div")
     container.className = "image-container"
             
-            # Create label element
+    # Create label element
     label = js.document.createElement("p")
-    result=call_predict_function(image_data)
+    result=call_predict_function(imgArray)
     if(result==0):
         label.textContent = "Dirty"
     elif(result==1):
