@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f3ed">
+	<title>Zoe's Bookcase Studio</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			color-scheme: light;
+			--ink: #263632;
+			--muted: #78827b;
+			--paper: #f4f3ed;
+			--panel: #fbfaf6;
+			--line: #e3e4dc;
+			--green: #456d5d;
+			--frame-wood: #bc8a58;
+			--frame-wood-light: #dbb783;
+			--frame-wood-dark: #946642;
+			--shelf-wood-light: #dbb783;
+			--shelf-wood-dark: #946642;
+			--backing: #e7ddc9;
+			--board-thickness: 10px;
+			font-family: "DM Sans", sans-serif;
+			font-synthesis: none;
+			text-rendering: optimizeLegibility;
+		}
+
+		* { box-sizing: border-box; }
+		body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); }
+		button, select, input { font: inherit; }
+		button { color: inherit; }
+		.topbar { height: 72px; padding: 0 5vw; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: rgba(251, 250, 246, .88); }
+		.brand { display: flex; align-items: center; gap: 11px; font-family: "Playfair Display", Georgia, serif; font-size: 21px; }
+		.brand-mark { width: 31px; height: 31px; border: 1px solid var(--green); border-radius: 50%; display: grid; place-items: center; color: var(--green); font-family: "DM Sans", sans-serif; font-size: 14px; }
+		.top-note { color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+		main { width: min(1320px, 92vw); margin: 0 auto; padding: 42px 0 56px; }
+		.intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+		.eyebrow { margin: 0 0 8px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+		h1 { margin: 0; font-family: "Playfair Display", Georgia, serif; font-size: clamp(32px, 4vw, 46px); font-weight: 500; letter-spacing: 0; line-height: 1.12; }
+		.intro-copy { max-width: 340px; margin: 0 0 4px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+		.workspace { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 18px; align-items: stretch; }
+		.controls { position: relative; z-index: 4; padding: 24px 25px; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); }
+		.controls-heading { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 17px; border-bottom: 1px solid var(--line); }
+		.controls-heading h2 { margin: 0; font-size: 15px; font-weight: 700; }
+		.step-label { color: var(--muted); font-size: 11px; }
+		.field { margin-top: 20px; }
+		.field-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 9px; }
+		label, legend, .material-label { font-size: 12px; font-weight: 700; }
+		.value { color: var(--green); font-size: 12px; font-weight: 700; }
+		select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #d9ddd4; border-radius: 3px; background: #fff; color: var(--ink); font-size: 13px; }
+		.material-picker { position: relative; }
+		.material-trigger { width: 100%; min-height: 58px; padding: 6px 10px; display: flex; align-items: center; gap: 10px; border: 1px solid #d9ddd4; border-radius: 3px; background: #fff; text-align: left; cursor: pointer; }
+		.material-trigger img { width: 62px; height: 46px; flex: 0 0 auto; object-fit: contain; border: 1px solid var(--line); background: #fff; }
+		.material-trigger-name { min-width: 0; flex: 1; font-size: 12px; font-weight: 600; line-height: 1.35; }
+		.material-chevron { color: var(--muted); font-size: 16px; }
+		.material-menu { position: absolute; z-index: 10; top: calc(100% + 4px); left: 0; right: 0; max-height: min(360px, 60vh); padding: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; overflow-y: auto; border: 1px solid #d9ddd4; border-radius: 3px; background: var(--panel); box-shadow: 0 10px 24px rgba(38, 54, 50, .16); }
+		.material-menu[hidden] { display: none; }
+		.material-option { min-width: 0; min-height: 88px; padding: 6px; display: grid; grid-template-rows: 54px auto; justify-items: center; align-content: start; gap: 4px; border: 1px solid transparent; border-radius: 2px; background: #fff; text-align: center; cursor: pointer; }
+		.material-option img { width: 100%; height: 54px; object-fit: contain; }
+		.material-option span { font-size: 10px; line-height: 1.3; overflow-wrap: anywhere; }
+		.material-option:hover { background: #edf2ed; }
+		.material-option[aria-checked="true"] { border-color: var(--green); background: #edf2ed; }
+		.material-native { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+		.preview-materials { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; padding: 10px 22px; border-top: 1px solid var(--line); background: var(--panel); }
+		.preview-material { min-width: 0; margin: 0; display: flex; align-items: center; gap: 11px; }
+		.preview-material[hidden] { display: none; }
+		.preview-material img { width: 78px; height: 66px; flex: 0 0 auto; object-fit: contain; border: 1px solid var(--line); border-radius: 2px; background: #fff; }
+		.preview-material figcaption { min-width: 0; display: grid; gap: 4px; }
+		.preview-material-role { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+		.preview-material-name { font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+		select:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid #6e9b84; outline-offset: 2px; }
+		.range-row { display: grid; grid-template-columns: 1fr 42px; gap: 12px; align-items: center; }
+		input[type="range"] { width: 100%; accent-color: var(--green); }
+		.range-number { padding: 7px 4px; border: 1px solid var(--line); border-radius: 3px; background: white; text-align: center; font-size: 12px; }
+		fieldset { min-width: 0; padding: 0; border: 0; }
+		.backing-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+		.backing-choice { min-height: 39px; padding: 6px 4px; border: 1px solid #d9ddd4; border-radius: 3px; background: white; color: var(--muted); font-size: 11px; cursor: pointer; }
+		.backing-choice[aria-pressed="true"] { border-color: var(--green); background: #edf2ed; color: var(--green); font-weight: 700; }
+		.control-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; padding-top: 17px; border-top: 1px solid var(--line); }
+		.text-button { padding: 7px 0; border: 0; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; }
+		.text-button:hover { color: var(--green); }
+
+		.preview { min-width: 0; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 5px; background: #e9eee8; overflow: hidden; }
+		.preview-bar { min-height: 56px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid rgba(38, 54, 50, .1); background: rgba(251, 250, 246, .78); }
+		.preview-title { display: flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 700; }
+		.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #6a9b76; }
+		.view-label { color: var(--muted); font-size: 11px; }
+		.stage { min-height: 560px; position: relative; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse at 50% 42%, rgba(255,255,255,.76), rgba(233,238,232,.14) 59%), linear-gradient(135deg, #e8eee8, #dde6df); }
+		.stage:before { content: ""; position: absolute; inset: auto 0 0; height: 23%; background: repeating-linear-gradient(0deg, transparent 0 43px, rgba(87, 112, 95, .07) 44px 45px), linear-gradient(#dce5dc, #d6e0d7); border-top: 1px solid rgba(69, 109, 93, .12); }
+		.stage-caption { position: absolute; top: 24px; left: 25px; color: #718078; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+		.bookcase-wrap { width: min(68%, 490px); height: 458px; position: relative; display: grid; place-items: center; perspective: 1200px; z-index: 1; }
+		.bookcase { --case-height: 410px; --case-width: 260px; --side-depth: 17px; --top-rise: 11px; position: relative; width: min(var(--case-width), 80vw); height: var(--case-height); transform: rotateY(-8deg) rotateX(1deg); transform-style: preserve-3d; transition: width .25s ease, height .25s ease; filter: drop-shadow(18px 22px 15px rgba(48, 60, 48, .2)); }
+		.case-side { position: absolute; z-index: 0; top: 0; right: calc(0px - var(--side-depth)); bottom: 0; width: var(--side-depth); transform: skewY(-32deg); transform-origin: left top; background: var(--frame-wood-dark); filter: brightness(.87); }
+		.case-top { position: absolute; z-index: 2; top: calc(0px - var(--top-rise)); left: 0; right: calc(0px - var(--side-depth)); height: var(--top-rise); background: var(--frame-wood-light); box-shadow: inset 0 0 0 1px rgba(80, 55, 34, .22); clip-path: polygon(0 100%, calc(100% - var(--side-depth)) 100%, 100% 0, var(--side-depth) 0); }
+		.case-body { position: absolute; z-index: 1; inset: 0; border: 8px solid var(--frame-wood-dark); border-top-width: 10px; border-bottom-width: 12px; background: var(--frame-wood); background-image: repeating-linear-gradient(95deg, transparent 0 15px, rgba(255,255,255,.07) 16px 18px, transparent 19px 35px); }
+		.case-body[data-frame-plywood="true"] { background-image: repeating-linear-gradient(0deg, rgba(88, 69, 47, .1) 0 1px, transparent 1px 8px), repeating-linear-gradient(95deg, transparent 0 15px, rgba(255,255,255,.07) 16px 18px, transparent 19px 35px); }
+		.case-body[data-frame-material="Walnut veneer"] { background-image: repeating-linear-gradient(92deg, transparent 0 10px, rgba(34, 22, 15, .12) 11px 12px, transparent 13px 24px), repeating-linear-gradient(95deg, transparent 0 15px, rgba(255,255,255,.05) 16px 18px, transparent 19px 35px); }
+		.case-body[data-frame-material="Paint-grade poplar"] { background-image: linear-gradient(105deg, rgba(255,255,255,.12), transparent 50%, rgba(0,0,0,.04)); }
+		.case-interior { position: absolute; inset: 8px 8px 11px; display: grid; overflow: hidden; background-color: var(--backing); background-image: repeating-linear-gradient(90deg, transparent 0 36px, rgba(105, 82, 56, .035) 37px 38px); }
+		.case-interior.beadboard { background-image: repeating-linear-gradient(90deg, transparent 0 8px, rgba(105, 82, 56, .13) 9px 10px); }
+		.case-interior.open-back { background: linear-gradient(135deg, rgba(255,255,255,.58), rgba(216, 230, 218, .78)); }
+		.bay { min-height: 0; position: relative; display: flex; align-items: end; justify-content: center; gap: 4px; padding: 0 10px 0; }
+		.bay:after { content: ""; position: absolute; z-index: 2; left: -3px; right: -3px; bottom: 0; height: var(--board-thickness); background: var(--shelf-wood-light); border-top: 2px solid rgba(255,255,255,.34); box-shadow: 0 5px 6px rgba(64, 45, 28, .22); }
+		.case-body[data-shelf-plywood="true"] .bay:after { background-image: repeating-linear-gradient(0deg, transparent 0 3px, rgba(75, 52, 34, .12) 4px 5px); }
+		.case-body[data-shelf-material="Hardwood edge band"] .bay:after { background: linear-gradient(0deg, var(--shelf-wood-dark), var(--shelf-wood-light) 36%, var(--shelf-wood-light)); }
+		.bay:last-child:after { height: 0; }
+		.book { width: var(--book-width); height: var(--book-height); margin-bottom: calc(var(--board-thickness) + 2px); border-radius: 2px 2px 0 0; background: var(--book-color); box-shadow: inset 3px 0 rgba(255,255,255,.19), inset -2px 0 rgba(0,0,0,.12); }
+		.book:after { content: ""; display: block; height: 3px; margin-top: 7px; background: rgba(255,255,255,.35); }
+		.book:nth-child(2n) { height: calc(var(--book-height) * .78); }
+		.book:nth-child(3n) { height: calc(var(--book-height) * .9); }
+		.dimension { position: absolute; z-index: 2; color: #53685b; font-size: 11px; font-weight: 700; }
+		.dimension-width { bottom: 12px; left: 50%; transform: translateX(-50%); }
+		.dimension-height { right: 8%; top: 50%; writing-mode: vertical-rl; transform: translateY(-50%) rotate(180deg); }
+		.dimension-depth { top: 23%; right: 18%; transform: rotate(-31deg); }
+		.preview-materials { min-height: 86px; }
+		.spec-strip { min-height: 58px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--panel); border-top: 1px solid var(--line); }
+		.spec-main { font-size: 12px; font-weight: 700; }
+		.spec-sub { margin-top: 3px; color: var(--muted); font-size: 11px; }
+		.copy-button { min-height: 36px; padding: 0 13px; border: 1px solid #cbd4ca; border-radius: 3px; background: transparent; font-size: 11px; font-weight: 700; cursor: pointer; }
+		.copy-button:hover { background: #edf2ed; border-color: var(--green); }
+		.toast { position: fixed; right: 22px; bottom: 22px; padding: 12px 16px; border-radius: 3px; background: var(--ink); color: white; font-size: 12px; opacity: 0; transform: translateY(8px); transition: .2s ease; pointer-events: none; }
+		.toast.show { opacity: 1; transform: translateY(0); }
+
+		@media (max-width: 850px) {
+			main { width: min(720px, 92vw); padding-top: 30px; }
+			.workspace { grid-template-columns: 1fr; }
+			.controls { order: 2; }
+			.preview { order: 1; }
+			.stage { min-height: 470px; }
+			.bookcase-wrap { height: 410px; }
+		}
+		@media (max-width: 520px) {
+			.topbar { height: 60px; padding: 0 4vw; }
+			.top-note { font-size: 9px; }
+			main { width: 92vw; padding: 26px 0 35px; }
+			.intro { display: block; }
+			.intro-copy { margin-top: 10px; font-size: 13px; }
+			.controls { padding: 19px; }
+			.stage { min-height: 430px; }
+			.bookcase-wrap { width: 74%; height: 350px; }
+			.bookcase { --case-width: 205px; --case-height: 315px; }
+			.dimension-height { right: 4%; }
+			.dimension-depth { right: 9%; }
+			.preview-bar, .spec-strip { padding: 0 14px; }
+			.preview-materials { min-height: 76px; padding: 9px 14px; gap: 8px; }
+			.preview-material { gap: 7px; }
+			.preview-material img { width: 62px; height: 58px; }
+			.spec-sub { max-width: 220px; line-height: 1.4; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			*, *:before, *:after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<header class="topbar">
+		<div class="brand"><span class="brand-mark" aria-hidden="true">Z</span><span>Zoe's Bookcase Studio</span></div>
+		<span class="top-note">A little piece made just for you</span>
+	</header>
+
+	<main>
+		<section class="intro" aria-labelledby="page-title">
+			<div>
+				<p class="eyebrow">Made to fit your favorite things</p>
+				<h1 id="page-title">Design your bookcase</h1>
+			</div>
+			<p class="intro-copy">A place for the books you love, the little things you collect, and everything in between.</p>
+		</section>
+
+		<div class="workspace">
+			<section class="controls" aria-labelledby="controls-title">
+				<div class="controls-heading">
+					<h2 id="controls-title">Your design</h2>
+					<span class="step-label">CUSTOMIZE</span>
+				</div>
+
+				<div class="field">
+					<div class="field-top"><label for="shelf-count">Number of shelves</label><span class="value" id="shelf-count-value">4 shelves</span></div>
+					<select id="shelf-count">
+						<option value="2">2 shelves</option><option value="3">3 shelves</option><option value="4" selected>4 shelves</option><option value="5">5 shelves</option><option value="6">6 shelves</option>
+					</select>
+				</div>
+
+				<div class="field">
+					<div class="field-top"><span class="material-label" id="frame-material-label">Bookcase material</span></div>
+					<div class="material-picker" id="frame-material-picker">
+						<button class="material-trigger" id="frame-material-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="frame-material-menu" aria-labelledby="frame-material-label frame-material-selected-name">
+							<img id="frame-material-selected-image" src="assets/materials/softwood-plywood.jpg" alt=""><span class="material-trigger-name" id="frame-material-selected-name">Softwood Plywood</span><span class="material-chevron" aria-hidden="true">⌄</span>
+						</button>
+						<div class="material-menu" id="frame-material-menu" role="menu" aria-label="Bookcase material options" hidden></div>
+					</div>
+					<select id="frame-material" class="material-native" aria-hidden="true" tabindex="-1">
+						<option selected>Softwood Plywood</option><option>Hardwood Plywood</option><option>Marine Plywood</option><option>Birch Plywood</option>
+						<option>BWP Plywood (Boiling Water Proof)</option><option>MR Grade Plywood (Moisture Resistant)</option><option>Flexible Plywood (Bending Plywood)</option><option>Structural Plywood</option>
+						<option>Decorative Veneer Plywood</option><option>Fire Retardant Plywood</option><option>Aircraft Plywood</option><option>Film Faced Plywood</option>
+					</select>
+				</div>
+
+				<div class="field">
+					<div class="field-top"><span class="material-label" id="shelf-material-label">Shelf material</span></div>
+					<div class="material-picker" id="shelf-material-picker">
+						<button class="material-trigger" id="shelf-material-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="shelf-material-menu" aria-labelledby="shelf-material-label shelf-material-selected-name">
+							<img id="shelf-material-selected-image" src="assets/materials/softwood-plywood.jpg" alt=""><span class="material-trigger-name" id="shelf-material-selected-name">Softwood Plywood</span><span class="material-chevron" aria-hidden="true">⌄</span>
+						</button>
+						<div class="material-menu" id="shelf-material-menu" role="menu" aria-label="Shelf material options" hidden></div>
+					</div>
+					<select id="shelf-material" class="material-native" aria-hidden="true" tabindex="-1">
+						<option selected>Softwood Plywood</option><option>Hardwood Plywood</option><option>Marine Plywood</option><option>Birch Plywood</option>
+						<option>BWP Plywood (Boiling Water Proof)</option><option>MR Grade Plywood (Moisture Resistant)</option><option>Flexible Plywood (Bending Plywood)</option><option>Structural Plywood</option>
+						<option>Decorative Veneer Plywood</option><option>Fire Retardant Plywood</option><option>Aircraft Plywood</option><option>Film Faced Plywood</option>
+					</select>
+				</div>
+
+				<fieldset class="field">
+					<div class="field-top"><legend>Back panel</legend><span class="value" id="backing-value">Softwood Plywood</span></div>
+					<div class="backing-options" role="group" aria-label="Back panel style">
+						<button class="backing-choice" type="button" data-backing="open-back" aria-pressed="false">Open</button>
+						<button class="backing-choice" type="button" data-backing="plywood" aria-pressed="true">Plywood</button>
+						<button class="backing-choice" type="button" data-backing="beadboard" aria-pressed="false">Beadboard</button>
+					</div>
+				</fieldset>
+				<div class="field" id="back-panel-material-field">
+					<div class="field-top"><span class="material-label" id="back-panel-material-label">Plywood backing material</span></div>
+					<div class="material-picker" id="back-panel-material-picker">
+						<button class="material-trigger" id="back-panel-material-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="back-panel-material-menu" aria-labelledby="back-panel-material-label back-panel-material-selected-name">
+							<img id="back-panel-material-selected-image" src="assets/materials/softwood-plywood.jpg" alt=""><span class="material-trigger-name" id="back-panel-material-selected-name">Softwood Plywood</span><span class="material-chevron" aria-hidden="true">⌄</span>
+						</button>
+						<div class="material-menu" id="back-panel-material-menu" role="menu" aria-label="Back-panel material options" hidden></div>
+					</div>
+					<select id="back-panel-material" class="material-native" aria-hidden="true" tabindex="-1">
+						<option selected>Softwood Plywood</option><option>Hardwood Plywood</option><option>Marine Plywood</option><option>Birch Plywood</option>
+						<option>BWP Plywood (Boiling Water Proof)</option><option>MR Grade Plywood (Moisture Resistant)</option><option>Flexible Plywood (Bending Plywood)</option><option>Structural Plywood</option>
+						<option>Decorative Veneer Plywood</option><option>Fire Retardant Plywood</option><option>Aircraft Plywood</option><option>Film Faced Plywood</option>
+					</select>
+				</div>
+
+				<div class="field">
+					<div class="field-top"><label for="shelf-gap">Gap between shelves</label><span class="value" id="gap-value">12 in</span></div>
+					<div class="range-row"><input id="shelf-gap" type="range" min="8" max="18" value="12"><output class="range-number" id="gap-output" for="shelf-gap">12</output></div>
+				</div>
+
+				<div class="field">
+					<div class="field-top"><label for="bookcase-width">Bookcase width</label><span class="value" id="width-value">36 in</span></div>
+					<div class="range-row"><input id="bookcase-width" type="range" min="24" max="48" value="36"><output class="range-number" id="width-output" for="bookcase-width">36</output></div>
+				</div>
+
+				<div class="field">
+					<div class="field-top"><label for="shelf-depth">Shelf depth</label><span class="value" id="depth-value">12 in</span></div>
+					<div class="range-row"><input id="shelf-depth" type="range" min="8" max="20" value="12"><output class="range-number" id="depth-output" for="shelf-depth">12</output></div>
+				</div>
+
+				<div class="field">
+					<div class="field-top"><span class="material-label">Shelf thickness</span><span class="value" id="thickness-value">0.75 in</span></div>
+				</div>
+
+				<div class="control-foot">
+					<button class="text-button" id="reset-button" type="button">Reset design</button>
+					<span class="step-label">PREVIEW UPDATES LIVE</span>
+				</div>
+			</section>
+
+			<section class="preview" aria-label="Live bookcase preview">
+				<div class="preview-bar">
+					<div class="preview-title"><span class="live-dot" aria-hidden="true"></span>Live preview</div>
+					<span class="view-label">FRONT + SIDE VIEW</span>
+				</div>
+				<div class="stage">
+					<span class="stage-caption">Your bookcase, taking shape</span>
+					<span class="dimension dimension-height" id="height-dimension">60 in</span>
+					<span class="dimension dimension-depth" id="depth-dimension">12 in deep</span>
+					<div class="bookcase-wrap">
+						<div class="bookcase" id="bookcase" role="img" aria-label="Honey oak bookcase with four shelves and plywood backing">
+							<div class="case-side" aria-hidden="true"></div><div class="case-top" aria-hidden="true"></div>
+							<div class="case-body" id="case-body"><div class="case-interior" id="case-interior"></div></div>
+						</div>
+					</div>
+						<span class="dimension dimension-width" id="width-dimension">36 in</span>
+				</div>
+					<div class="preview-materials" aria-label="Selected plywood samples">
+						<figure class="preview-material"><img id="preview-frame-image" src="assets/materials/softwood-plywood.jpg" alt="Softwood Plywood sample"><figcaption><span class="preview-material-role">Bookcase</span><strong class="preview-material-name" id="preview-frame-name">Softwood Plywood</strong></figcaption></figure>
+						<figure class="preview-material"><img id="preview-shelf-image" src="assets/materials/softwood-plywood.jpg" alt="Softwood Plywood sample"><figcaption><span class="preview-material-role">Shelves</span><strong class="preview-material-name" id="preview-shelf-name">Softwood Plywood</strong></figcaption></figure>
+						<figure class="preview-material" id="preview-back-material"><img id="preview-back-image" src="assets/materials/softwood-plywood.jpg" alt="Softwood Plywood sample"><figcaption><span class="preview-material-role">Back panel</span><strong class="preview-material-name" id="preview-back-name">Softwood Plywood</strong></figcaption></figure>
+					</div>
+				<div class="spec-strip">
+							<div><div class="spec-main" id="summary-main">4 shelves · Softwood Plywood</div><div class="spec-sub" id="summary-sub">36 in wide · Softwood Plywood, 0.75 in thick · Softwood Plywood backing · 12 in gap · 12 in deep</div></div>
+					<button class="copy-button" id="copy-button" type="button">Copy build specs</button>
+				</div>
+			</section>
+		</div>
+	</main>
+	<div class="toast" id="toast" role="status" aria-live="polite">Build specs copied</div>
+
+	<script>
+		const controls = {
+			shelfCount: document.querySelector('#shelf-count'),
+			frameMaterial: document.querySelector('#frame-material'),
+			shelfMaterial: document.querySelector('#shelf-material'),
+			backMaterial: document.querySelector('#back-panel-material'),
+			gap: document.querySelector('#shelf-gap'),
+			depth: document.querySelector('#shelf-depth'),
+			width: document.querySelector('#bookcase-width'),
+		};
+		const bookColors = ['#6e8977', '#d28d68', '#d0b35f', '#627b91', '#b96b5c', '#d9d1bc', '#897b9a'];
+		const plywoodSamples = {
+			'Softwood Plywood': { filename: 'softwood-plywood.jpg', color: '#ECCBA9' },
+			'Hardwood Plywood': { filename: 'hardwood-plywood.jpg', color: '#B78B66' },
+			'Marine Plywood': { filename: 'marine-plywood.jpg', color: '#714C40' },
+			'Birch Plywood': { filename: 'birch-plywood.jpg', color: '#EAD7BF' },
+			'BWP Plywood (Boiling Water Proof)': { filename: 'bwp-plywood.jpg', color: '#6B3E37' },
+			'MR Grade Plywood (Moisture Resistant)': { filename: 'mr-grade-plywood.jpg', color: '#D3A885' },
+			'Flexible Plywood (Bending Plywood)': { filename: 'flexible-plywood.jpg', color: '#E1C6A8' },
+			'Structural Plywood': { filename: 'structural-plywood.jpg', color: '#D7B38B' },
+			'Decorative Veneer Plywood': { filename: 'decorative-veneer-plywood.jpg', color: '#C07B59' },
+			'Fire Retardant Plywood': { filename: 'fire-retardant-plywood.jpg', color: '#B59E95' },
+			'Aircraft Plywood': { filename: 'aircraft-plywood.jpg', color: '#E8D0B8' },
+			'Film Faced Plywood': { filename: 'film-faced-plywood.jpg', color: '#654A40' },
+		};
+		const caseEl = document.querySelector('#bookcase');
+		const caseBody = document.querySelector('#case-body');
+		const interior = document.querySelector('#case-interior');
+		let selectedBacking = 'plywood';
+
+		function updateMaterialSample(material, sampleId, imageId, captionId) {
+			const filename = plywoodSamples[material].filename;
+			const image = document.querySelector(`#${imageId}`);
+			const imagePath = `assets/materials/${filename}`;
+			if (image.getAttribute('src') !== imagePath) image.src = imagePath;
+			image.alt = `${material} sample`;
+			document.querySelector(`#${captionId}`).textContent = material;
+		}
+
+		function updateMaterialPicker(material, pickerName) {
+			const sample = plywoodSamples[material];
+			const image = document.querySelector(`#${pickerName}-material-selected-image`);
+			const imagePath = `assets/materials/${sample.filename}`;
+			if (image.getAttribute('src') !== imagePath) image.src = imagePath;
+			document.querySelector(`#${pickerName}-material-selected-name`).textContent = material;
+			document.querySelectorAll(`#${pickerName}-material-menu [data-material]`).forEach(option => {
+				option.setAttribute('aria-checked', String(option.dataset.material === material));
+			});
+		}
+
+		function setupMaterialPicker(control, pickerName) {
+			const picker = document.querySelector(`#${pickerName}-material-picker`);
+			const trigger = document.querySelector(`#${pickerName}-material-trigger`);
+			const menu = document.querySelector(`#${pickerName}-material-menu`);
+			Object.entries(plywoodSamples).forEach(([material, sample]) => {
+				const option = document.createElement('button');
+				option.type = 'button';
+				option.className = 'material-option';
+				option.setAttribute('role', 'menuitemradio');
+				option.setAttribute('aria-checked', String(control.value === material));
+				option.dataset.material = material;
+				const image = document.createElement('img');
+				image.src = `assets/materials/${sample.filename}`;
+				image.alt = '';
+				const name = document.createElement('span');
+				name.textContent = material;
+				option.append(image, name);
+				option.addEventListener('click', () => {
+					control.value = material;
+					control.dispatchEvent(new Event('input', { bubbles: true }));
+					menu.hidden = true;
+					trigger.setAttribute('aria-expanded', 'false');
+					trigger.focus();
+				});
+				option.addEventListener('keydown', event => {
+					const options = [...menu.querySelectorAll('[role="menuitemradio"]')];
+					const optionIndex = options.indexOf(option);
+					if (event.key === 'Escape') {
+						event.preventDefault();
+						menu.hidden = true;
+						trigger.setAttribute('aria-expanded', 'false');
+						trigger.focus();
+					} else if (['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft', 'Home', 'End'].includes(event.key)) {
+						event.preventDefault();
+						const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1 : (optionIndex + (['ArrowDown', 'ArrowRight'].includes(event.key) ? 1 : -1) + options.length) % options.length;
+						options[nextIndex].focus();
+					}
+				});
+				menu.append(option);
+			});
+			trigger.addEventListener('click', () => {
+				menu.hidden = !menu.hidden;
+				trigger.setAttribute('aria-expanded', String(!menu.hidden));
+				if (!menu.hidden) {
+					menu.scrollTop = 0;
+					menu.querySelector('[aria-checked="true"]')?.focus();
+				}
+			});
+			document.addEventListener('click', event => {
+				if (!picker.contains(event.target)) {
+					menu.hidden = true;
+					trigger.setAttribute('aria-expanded', 'false');
+				}
+			});
+		}
+
+		function blendColors(baseColor, tintColor, tintAmount) {
+			const channels = color => [1, 3, 5].map(offset => parseInt(color.slice(offset, offset + 2), 16));
+			const baseChannels = channels(baseColor);
+			const tintChannels = channels(tintColor);
+			return `#${baseChannels.map((channel, index) => Math.round(channel * (1 - tintAmount) + tintChannels[index] * tintAmount).toString(16).padStart(2, '0')).join('')}`;
+		}
+
+		function materialPalette(material) {
+			const color = plywoodSamples[material].color;
+			return {
+				color,
+				light: blendColors(color, '#fff4dc', 0.24),
+				dark: blendColors(color, '#30251f', 0.34),
+			};
+		}
+
+		function updatePreview() {
+			const shelves = Number(controls.shelfCount.value);
+			const gap = Number(controls.gap.value);
+			const depth = Number(controls.depth.value);
+			const thickness = 0.75;
+			const width = Number(controls.width.value);
+			const frameMaterial = controls.frameMaterial.value;
+			const shelfMaterial = controls.shelfMaterial.value;
+			const backMaterial = controls.backMaterial.value;
+			const backingNames = { 'open-back': 'Open back', plywood: 'Plywood backing', beadboard: 'Beadboard backing' };
+			const backingDescription = selectedBacking === 'plywood' ? `${backMaterial} backing` : backingNames[selectedBacking];
+			const caseHeight = Math.min(455, Math.max(320, (shelves + 1) * gap * 5.5));
+			const boardThickness = Math.round(thickness * 10);
+
+			const framePalette = materialPalette(frameMaterial);
+			const shelfPalette = materialPalette(shelfMaterial);
+			const backPalette = materialPalette(backMaterial);
+			document.documentElement.style.setProperty('--frame-wood', framePalette.color);
+			document.documentElement.style.setProperty('--frame-wood-light', framePalette.light);
+			document.documentElement.style.setProperty('--frame-wood-dark', framePalette.dark);
+			document.documentElement.style.setProperty('--shelf-wood-light', shelfPalette.light);
+			document.documentElement.style.setProperty('--shelf-wood-dark', shelfPalette.dark);
+			document.documentElement.style.setProperty('--backing', backPalette.color);
+			document.documentElement.style.setProperty('--board-thickness', `${boardThickness}px`);
+			caseEl.style.setProperty('--case-height', `${caseHeight}px`);
+			caseEl.style.setProperty('--case-width', `${Math.round(260 + (width - 36) * 4.6)}px`);
+			caseEl.style.setProperty('--side-depth', `${Math.round(depth * 1.4)}px`);
+			caseEl.style.setProperty('--top-rise', `${Math.round(depth * 0.875)}px`);
+			const bodyStyle = getComputedStyle(caseBody);
+			const interiorStyle = getComputedStyle(interior);
+			const interiorHeight = caseHeight - parseFloat(bodyStyle.borderTopWidth) - parseFloat(bodyStyle.borderBottomWidth) - parseFloat(interiorStyle.top) - parseFloat(interiorStyle.bottom);
+			const clearBayHeight = (interiorHeight - shelves * boardThickness) / (shelves + 1);
+			interior.style.gridTemplateRows = `${Array(shelves).fill(`${clearBayHeight + boardThickness}px`).join(' ')} ${clearBayHeight}px`;
+			caseBody.dataset.frameMaterial = frameMaterial;
+			caseBody.dataset.shelfMaterial = shelfMaterial;
+			caseBody.dataset.framePlywood = String(frameMaterial.toLowerCase().includes('plywood'));
+			caseBody.dataset.shelfPlywood = String(shelfMaterial.toLowerCase().includes('plywood'));
+			updateMaterialSample(frameMaterial, 'preview-materials', 'preview-frame-image', 'preview-frame-name');
+			updateMaterialSample(shelfMaterial, 'preview-materials', 'preview-shelf-image', 'preview-shelf-name');
+			updateMaterialSample(backMaterial, 'preview-materials', 'preview-back-image', 'preview-back-name');
+			updateMaterialPicker(frameMaterial, 'frame');
+			updateMaterialPicker(shelfMaterial, 'shelf');
+			updateMaterialPicker(backMaterial, 'back-panel');
+			document.querySelector('#back-panel-material-field').hidden = selectedBacking !== 'plywood';
+			document.querySelector('#preview-back-material').hidden = selectedBacking !== 'plywood';
+			interior.className = `case-interior ${selectedBacking === 'open-back' ? 'open-back' : selectedBacking}`;
+			interior.dataset.backingMaterial = backMaterial;
+			interior.replaceChildren();
+
+			for (let level = 0; level < shelves + 1; level += 1) {
+				const bay = document.createElement('div');
+				bay.className = 'bay';
+				if (level < shelves) {
+					const count = 3 + ((level * 2 + shelves) % 4);
+					for (let bookIndex = 0; bookIndex < count; bookIndex += 1) {
+						const book = document.createElement('span');
+						book.className = 'book';
+						book.style.setProperty('--book-width', `${7 + ((bookIndex + level) % 3) * 2}px`);
+						book.style.setProperty('--book-height', `${Math.max(22, Math.min(61, 27 + ((bookIndex * 13 + level * 9) % 35)))}px`);
+						book.style.setProperty('--book-color', bookColors[(bookIndex + level * 2) % bookColors.length]);
+						bay.append(book);
+					}
+				}
+				interior.append(bay);
+			}
+
+			document.querySelector('#shelf-count-value').textContent = `${shelves} shelves`;
+			document.querySelector('#gap-value').textContent = `${gap} in`;
+			document.querySelector('#gap-output').textContent = gap;
+			document.querySelector('#depth-value').textContent = `${depth} in`;
+			document.querySelector('#depth-output').textContent = depth;
+			document.querySelector('#thickness-value').textContent = `${Number(thickness.toFixed(2))} in`;
+			document.querySelector('#width-value').textContent = `${width} in`;
+			document.querySelector('#width-output').textContent = width;
+			document.querySelector('#backing-value').textContent = selectedBacking === 'plywood' ? backMaterial : backingNames[selectedBacking].replace(' backing', '');
+			document.querySelector('#height-dimension').textContent = `${(shelves + 1) * gap} in`;
+			document.querySelector('#depth-dimension').textContent = `${depth} in deep`;
+			document.querySelector('#width-dimension').textContent = `${width} in`;
+			document.querySelector('#summary-main').textContent = `${shelves} shelves · ${controls.frameMaterial.value}`;
+			document.querySelector('#summary-sub').textContent = `${width} in wide · ${shelfMaterial}, ${thickness.toFixed(2)} in thick · ${backingDescription} · ${gap} in gap · ${depth} in deep`;
+			caseEl.setAttribute('aria-label', `${frameMaterial} bookcase, ${width} inches wide, with ${shelves} shelves made of ${shelfMaterial} at 0.75 inches thick and ${backingDescription.toLowerCase()}`);
+		}
+
+		setupMaterialPicker(controls.frameMaterial, 'frame');
+		setupMaterialPicker(controls.shelfMaterial, 'shelf');
+		setupMaterialPicker(controls.backMaterial, 'back-panel');
+		Object.values(controls).forEach(control => control.addEventListener('input', updatePreview));
+		document.querySelectorAll('[data-backing]').forEach(button => button.addEventListener('click', () => {
+			selectedBacking = button.dataset.backing;
+			document.querySelectorAll('[data-backing]').forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
+			updatePreview();
+		}));
+		document.querySelector('#copy-button').addEventListener('click', async () => {
+			const spec = `${document.querySelector('#summary-main').textContent}\n${document.querySelector('#summary-sub').textContent}`;
+			try {
+				await navigator.clipboard.writeText(spec);
+			} catch {
+				const temporary = document.createElement('textarea');
+				temporary.value = spec;
+				temporary.style.position = 'fixed';
+				temporary.style.opacity = '0';
+				document.body.append(temporary);
+				temporary.select();
+				document.execCommand('copy');
+				temporary.remove();
+			}
+			const toast = document.querySelector('#toast');
+			toast.classList.add('show');
+			window.setTimeout(() => toast.classList.remove('show'), 2200);
+		});
+		document.querySelector('#reset-button').addEventListener('click', () => {
+			controls.shelfCount.value = '4';
+			controls.frameMaterial.value = 'Softwood Plywood';
+			controls.shelfMaterial.value = 'Softwood Plywood';
+			controls.backMaterial.value = 'Softwood Plywood';
+			controls.gap.value = '12';
+			controls.depth.value = '12';
+			controls.width.value = '36';
+			selectedBacking = 'plywood';
+			document.querySelectorAll('[data-backing]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.backing === selectedBacking)));
+			updatePreview();
+		});
+		updatePreview();
+	</script>
+</body>
+</html>
