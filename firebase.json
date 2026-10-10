@@ -46,7 +46,7 @@
       ]
     },
     {
-      "site": "Zoe-Bookcase",
+      "site": "matthew-collard-zoe-bookcase",
       "public": "public/Zoe-Bookcase",
       "ignore": [
         "firebase.json",
